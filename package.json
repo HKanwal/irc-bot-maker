@@ -1,0 +1,15 @@
+{
+  "name": "irc-bot-maker",
+  "version": "0.1.5",
+  "author": "hkanwal",
+  "description": "A plugin based IRC bot building framework.",
+  "license": "MIT",
+  "repository": {
+  	"type": "git",
+  	"url": "https://github.com/HKanwal/irc-bot-maker.git"
+  },
+  "main": "src/IRCBot.js",
+  "dependencies": {
+    "irc": "^0.5.0"
+  }
+}
