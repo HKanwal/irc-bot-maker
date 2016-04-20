@@ -50,6 +50,10 @@ IRCBot.prototype.connect = function(server, options) {
 			}
 		}
 	});
+
+	this.listen("error", function(error) {
+		console.log(error);
+	});
 };
 
 /**
