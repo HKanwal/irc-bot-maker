@@ -7,6 +7,7 @@ var irc = require("irc");
  */
 function IRCBot(nick) {
 	this.commands = {};
+	this.plugins = [];
 	this.nick = nick;
 }
 
@@ -15,7 +16,12 @@ function IRCBot(nick) {
  * @param {Object} commands The object returned by plugin modules
  */
 IRCBot.prototype.use = function(commands) {
+	if(this.client) {
+		return;
+	}
+
 	var plugin = commands._plugin;
+	this.plugins.push(plugin);
 	delete commands._plugin;
 
 	for(var command in commands) {
@@ -34,24 +40,25 @@ IRCBot.prototype.use = function(commands) {
  */
 IRCBot.prototype.connect = function(server, options) {
 	this.client = new irc.Client(server, this.nick, options);
+	var self = this;
 
-	this.listen("message", function(from, to, text) {
-		this.message = {
+	self.listen("message", function(from, to, text) {
+		self.message = {
 			from: from,
 			to: to,
 			text: text,
 			args: text.split(" ")
 		};
 
-		for(var command in this.commands) {
+		for(var command in self.commands) {
 			//TODO: Make this clearer?
-			if(this.commands[command].command == this.message.args[0]) {
-				return this.commands[command].callback(this, this.message.args.slice(1));
+			if(self.commands[command].command == self.message.args[0]) {
+				return self.commands[command].callback(self, self.message.args.slice(1));
 			}
 		}
 	});
 
-	this.listen("error", function(error) {
+	self.listen("error", function(error) {
 		console.log(error);
 	});
 };
