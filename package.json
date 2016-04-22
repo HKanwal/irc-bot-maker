@@ -1,6 +1,6 @@
 {
   "name": "irc-bot-maker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "hkanwal",
   "description": "A plugin based IRC bot building framework.",
   "license": "MIT",
