@@ -79,6 +79,10 @@ myBot.send("This is a message.", false, ["user1", "#channel1", "user2", "#channe
 ```  
 This message will be sent to two user: user1 and user2, and to two channels: #channel1 and #channel2
 
+### .client
+This object is the interface returned by the [node irc](https://www.npmjs.com/package/irc) module. It contains the core capabilities of the bot and 
+[is well documented here.](https://node-irc.readthedocs.org/en/latest/)
+
 ## Creating Plugins
 Plugins need to return an object with an _plugin property which gives the name of the plugin. All other properties are command which can be executed. These commands are objects
 containing their information.
@@ -113,6 +117,10 @@ ping: {
 ```
 This will listen for a "!?$ping" command.
 
+### disablePm
+Tell the bot not to execute a command if it is private messaged to it. If unspecified or set to false, it will respond to commands that are private messaged to it by private
+messenging the return value back.
+
 ### callback(bot, args)
 This will be triggered once the command is used. The bot param that is passed in is the instance of your bot. You can use any of the instance methods and any changes to the bot
 that is passed in will also alter your instance.  
@@ -121,7 +129,7 @@ The second param args is an array with the args used when the command was called
 ```
 !echo I'm a bot
 ```  
-Using this command in IRC will pass the follwing args to the callback function:
+Using this command in IRC will pass the following args to the callback function:
 ```
 => ["I'm", "a", "bot"]
 ```

@@ -42,7 +42,7 @@ IRCBot.prototype.connect = function(server, options) {
 	this.client = new irc.Client(server, this.nick, options);
 	var self = this;
 
-	self.listen("message", function(from, to, text) {
+	self.client.addListener("message", function(from, to, text) {
 		self.message = {
 			from: from,
 			to: to,
@@ -50,26 +50,29 @@ IRCBot.prototype.connect = function(server, options) {
 			args: text.split(" ")
 		};
 
+		if(to[0] != "#" && to.indexOf(self.nick) >= 0) {
+			self.message.isPm = true;
+		} else {
+			self.message.isPm = false;
+		}
+
 		for(var command in self.commands) {
+			command = self.commands[command];
+			
 			//TODO: Make this clearer?
-			if(self.commands[command].command == self.message.args[0]) {
-				return self.commands[command].callback(self, self.message.args.slice(1));
+			if(command.command == self.message.args[0]) {
+				if(command.disablePm && self.message.isPm) {
+					return;
+				}
+
+				return command.callback(self, self.message.args.slice(1));
 			}
 		}
 	});
 
-	self.listen("error", function(error) {
+	self.client.addListener("error", function(error) {
 		console.log(error);
 	});
-};
-
-/**
- * Shorthand for this.client.addListener
- * @param {String} event Event to listen for
- * @param {Function} callback Called when event is triggered
- */
-IRCBot.prototype.listen = function(event, callback) {
-	this.client.addListener(event, callback);
 };
 
 /**
@@ -86,7 +89,7 @@ IRCBot.prototype.send = function(message, disablePm, to) {
 		return;
 	}
 
-	if(this.message.to == this.nick) {
+	if(this.message.isPm) {
 		if(disablePm) {
 			return;
 		} else {
