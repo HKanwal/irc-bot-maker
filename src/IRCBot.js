@@ -12,14 +12,10 @@ function IRCBot(nick) {
 }
 
 /**
- * Tell bot to use a plugin
+ * Tell bot to use a plugin. Must be before connecting
  * @param {Object} commands The object returned by plugin modules
  */
 IRCBot.prototype.use = function(commands) {
-	if(this.client) {
-		return;
-	}
-
 	var plugin = commands._plugin;
 	this.plugins.push(plugin);
 	delete commands._plugin;
@@ -34,15 +30,32 @@ IRCBot.prototype.use = function(commands) {
 };
 
 /**
+ * Tell bot to stop using a plugin
+ * @param {String} plugin The name of the plugin to stop using
+ */
+ IRCBot.prototype.unuse = function(plugin) {
+ 	if(this.plugins.indexOf(plugin) < 0) {
+ 		return;
+ 	}
+
+ 	for(var command in this.commands) {
+ 		if(this.commands[command].plugin == plugin) {
+ 			delete this.commands[command];
+ 		}
+ 	}
+ 	this.plugins.splice(this.plugins.indexOf(plugin), 1);
+ };
+
+/**
  * Connect to IRC and expose client API
  * @param {String} server Server to connect to
  * @param {Object} options Configuration options, optional
  */
 IRCBot.prototype.connect = function(server, options) {
 	this.client = new irc.Client(server, this.nick, options);
-	var self = this;
+	self = this;
 
-	self.client.addListener("message", function(from, to, text) {
+	this.client.addListener("message", function(from, to, text) {
 		self.message = {
 			from: from,
 			to: to,
@@ -61,7 +74,7 @@ IRCBot.prototype.connect = function(server, options) {
 			
 			//TODO: Make this clearer?
 			if(command.command == self.message.args[0]) {
-				if(command.disablePm && self.message.isPm) {
+				if((command.disablePm || command.ignorePm) && self.message.isPm) {
 					return;
 				}
 
@@ -70,7 +83,7 @@ IRCBot.prototype.connect = function(server, options) {
 		}
 	});
 
-	self.client.addListener("error", function(error) {
+	this.client.addListener("error", function(error) {
 		console.log(error);
 	});
 };
@@ -78,10 +91,10 @@ IRCBot.prototype.connect = function(server, options) {
 /**
  * Send message to channel message is from or user in case of a personal message
  * @param {String} message Message to say
- * @param {Boolean} disablePm Do not reply when presonal messaged
+ * @param {Boolean} ignorePm Do not reply when presonal messaged
  * @param {Array} to Message recipient override, optional
  */
-IRCBot.prototype.send = function(message, disablePm, to) {
+IRCBot.prototype.send = function(message, ignorePm, to) {
 	if(to) {
 		for(var recipient in to) {
 			this.client.say(to[recipient], message);
@@ -90,7 +103,7 @@ IRCBot.prototype.send = function(message, disablePm, to) {
 	}
 
 	if(this.message.isPm) {
-		if(disablePm) {
+		if(ignorePm) {
 			return;
 		} else {
 			this.client.say(this.message.from, message);

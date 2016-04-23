@@ -3,14 +3,14 @@ module.exports = function() {
 		_plugin: "examplePlugin",
 		ping: {
 			modifier: "!",
-			disablePm: false,
+			ignorePm: false,
 			callback: function(bot, args) {
 				bot.send("pong");
 			}
 		},
 		echo: {
 			modifier: "!",
-			disablePm: true,
+			ignorePm: true,
 			callback: function(bot, args) {
 				bot.send(args.join(" "));
 			}
