@@ -72,10 +72,32 @@ IRCBot.prototype.connect = function(server, options) {
 		for(var command in self.commands) {
 			command = self.commands[command];
 			
-			//TODO: Make this clearer?
 			if(command.command == self.message.args[0]) {
-				if((command.disablePm || command.ignorePm) && self.message.isPm) {
+
+				//Checks for 'ignorePm' and 'onlyPm'
+				if(self.message.isPm) {
+					if(command.disablePm || command.ignorePm) {
+						return;
+					}
+				} else if(command.onlyPm) {
 					return;
+				}
+
+				//Checks for 'ignore'
+				if(command.ignore) {
+					for(var ignoree in command.ignore) {
+						ignoree = command.ignore[ignoree];
+
+						if(ignoree[0] == "#") {
+							if(!self.message.isPm && ignoree == to) {
+								return;
+							}
+						} else {
+							if(ignoree == from) {
+								return;
+							}
+						}
+					}
 				}
 
 				return command.callback(self, self.message.args.slice(1));
@@ -111,6 +133,15 @@ IRCBot.prototype.send = function(message, ignorePm, to) {
 	} else {
 		this.client.say(this.message.to, message);
 	}
+};
+
+/**
+ * Disconnects from currently connected server
+ * @param {String} message Message to send when disconnecting
+ * @param {Function} callback Called when disconnected
+ */
+IRCBot.prototype.disconnect = function(message, callback) {
+	this.client.disconnect(message, callback);
 };
 
 module.exports = IRCBot;

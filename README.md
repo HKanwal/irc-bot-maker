@@ -81,6 +81,9 @@ myBot.connect("myServer.com", {
 });
 ```
 
+### .disconnect([message[, callback]])
+Disconnects from current server. Message will be sent when disconnecting. If message is a function it will be considered the callback instead.
+
 ### .send(message[, ignorePm[, to]])
 Sends a message to the current channel. The current channel would be the one the last message came from. Optionally you can only send it when it isn't a private message.
 ```js
@@ -140,6 +143,12 @@ This will listen for a "!?$ping" command.
 ### ignorePm
 Tell the bot not to execute a command if it is a private message. If unspecified or set to false, it will respond to commands that are private messaged to it by private
 messaging the return value back. Also, this is an alias for the disablePm property.
+
+### onlyPm
+If true, that command will only be executed if it is send via private message.
+
+### ignore
+An array containing users or channels that will not trigger this command. Channels start with # and are otherwise considered users.
 
 ### callback(bot, args)
 This will be triggered once the command is used. The bot param that is passed in is the instance of your bot. You can use any of the instance methods and any changes to the bot

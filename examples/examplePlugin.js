@@ -4,6 +4,7 @@ module.exports = function() {
 		ping: {
 			modifier: "!",
 			ignorePm: false,
+			onlyPm: true,
 			callback: function(bot, args) {
 				bot.send("pong");
 			}
@@ -11,6 +12,7 @@ module.exports = function() {
 		echo: {
 			modifier: "!",
 			ignorePm: true,
+			ignore: ["#spammyChannel1", "annoyingUser1"],
 			callback: function(bot, args) {
 				bot.send(args.join(" "));
 			}
